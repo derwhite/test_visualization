@@ -1,10 +1,11 @@
+import sys
 from matplotlib import pyplot as plt
 import numpy as np
 import json
 from collections import Counter
 import os
 
-mydir =  os.path.dirname(os.path.realpath(__file__)) + '\\mplus'
+mydir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus')
 
 files = os.listdir(mydir)
 files = sorted(files)
