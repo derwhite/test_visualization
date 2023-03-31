@@ -81,8 +81,11 @@ for i,Player_name in enumerate(Player_list):
     ilvls = dicts[Player_name]['ilvls']
     plt.plot(dates, ilvls, colors[i], label=Player_name)
     plt.plot(vier_er[Player_name]['date'][-10:], int(vier_er[Player_name]['date'][-15:-12]), colors[i]+"o", markersize=10)
+    plt.text(vier_er[Player_name]['date'][-10:], int(vier_er[Player_name]['date'][-15:-12])+1, f'4er', weight='bold')
+    
     plt.plot(zwei_er[Player_name]['date'][-10:], int(zwei_er[Player_name]['date'][-15:-12]), colors[i]+"o", markersize=10)
-
+    plt.text(zwei_er[Player_name]['date'][-10:], int(zwei_er[Player_name]['date'][-15:-12])+1, f'2er', weight='bold')
+    
 
 # plt.plot("2023-01-21", 420, "ko")
 plt.legend()
