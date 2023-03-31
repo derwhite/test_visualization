@@ -1,8 +1,6 @@
-import sys
 from matplotlib import pyplot as plt
 import numpy as np
 import json
-from collections import Counter
 import os
 
 
@@ -90,9 +88,8 @@ def plot_ilvl_progression(mydir: os.path, tier_lvl: str):
         plt.text(zwei_er[Player_name]['date'][-10:], int(zwei_er[Player_name]['date'][-15:-12])+1, f'2er', weight='bold')
         
 
-    # plt.plot("2023-01-21", 420, "ko")
+
     plt.legend()
-    # plt.plot(dates, ilvls, "b")
     plt.show()
 
 def main():
