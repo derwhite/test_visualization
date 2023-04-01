@@ -1,31 +1,73 @@
+import sys
 from matplotlib import pyplot as plt
 import numpy as np
 import json
 import os
 
+def plot_best_dungeon(mydir: os.path, dungeon_slag: str, Player_list: list):
+    files = os.listdir(mydir)
+    files = sorted(files)
+    dicts = {}
 
-def plot_ilvl_progression(mydir: os.path, tier_lvl: str):
+    for i in files:
+        
+        playerdb = json.load(open(os.path.join(mydir, i), "r"))
+        db_name = "Players"
+        if "Mains" in playerdb.keys():
+            db_name = "Mains"
+        for j in playerdb[db_name]:
+            if j["name"] not in dicts.keys() and j["name"] in Player_list:
+                dicts[j["name"]] = {}
+            if j["name"] in Player_list:
+                # dicts[j["name"]][i[:10]] = [x['mythic_level'] for x in j['mythic_plus_best_runs'] if x['short_name'] == dungeon_slag and x['num_keystone_upgrades'] > 0]
+                dicts[j["name"]][j['gear']['item_level_equipped']] = [x['mythic_level'] for x in j['mythic_plus_best_runs'] if x['short_name'] == dungeon_slag and x['num_keystone_upgrades'] > 0]
+                
 
+    colors = ["b","g","r","c","m","y","k","w"]
+
+    plt.xlabel("ilvl")
+    plt.ylabel("Dungeon")
+    plt.xticks(rotation=90)
+    plt.yticks(np.arange(0, 25, 1))
+    plt.xticks(np.arange(0, 440, 2))
+    plt.title(f"Dungeon Progress for: {dungeon_slag}")
+    plt.grid(True)
+
+    print(len(dicts.keys()))
+
+    for i,Player_name in enumerate(dicts.keys()):
+        # dates = list(dicts[Player_name].keys())
+        # dungeons = [x[0] if len(x) > 0 else 0 for x in dicts[Player_name].values()]
+        dates = []
+        dungeons = []
+        for k in dicts[Player_name].keys():
+            if len(dicts[Player_name][k]) > 0:
+                dungeons.append(dicts[Player_name][k][0])
+                dates.append(k)
+        
+        assert len(dates) == len(dungeons)
+        print(len(dates), len(dungeons))
+        plt.plot(dates, dungeons, colors[i], label=Player_name)
+
+    plt.legend()
+    plt.show()
+
+def plot_ilvl_progression(mydir: os.path, tier_lvl: str, Player_list: list):
 
     files = os.listdir(mydir)
     files = sorted(files)
-
     dicts = {}
-
-    Player_list = ["Thymár","Nodoká","Demage","Sup","Käseknacker", "Shalltear", 'Liamos']
 
     for i in Player_list:
         dicts[i] = {"dates":[], "ilvls":[]}
-
 
     tslots = ['head', 'chest', 'shoulder', 'legs', 'hands']
 
     vier_er = {}
     zwei_er = {}
 
-
     for i in range(0,len(files),2):
-        playerdb = json.load(open(mydir + '\\' + files[i], "r"))
+        playerdb = json.load(open(os.path.join(mydir,files[i]), "r"))
         db_name = "Players"
         if "Mains" in playerdb.keys():
             db_name = "Mains"
@@ -87,13 +129,14 @@ def plot_ilvl_progression(mydir: os.path, tier_lvl: str):
         plt.plot(zwei_er[Player_name]['date'][-10:], int(zwei_er[Player_name]['date'][-15:-12]), colors[i]+"o", markersize=10)
         plt.text(zwei_er[Player_name]['date'][-10:], int(zwei_er[Player_name]['date'][-15:-12])+1, f'2er', weight='bold')
         
-
-
     plt.legend()
     plt.show()
 
 def main():
-    plot_ilvl_progression(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus'), '29')
+    # players = ["Thymár","Nodoká","Demage","Sup","Käseknacker", "Shalltear", 'Liamos']
+    players = ["Demage", "Shalltear"]
+    # plot_ilvl_progression(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus'), '29', players)
+    plot_best_dungeon(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus'), 'COS' ,players)
 
 if __name__ == "__main__":
     main()
