@@ -1,8 +1,10 @@
 import sys
 from matplotlib import pyplot as plt
+import requests
 import numpy as np
 import json
 import os
+from datetime import datetime
 
 def plot_best_dungeon(mydir: os.path, dungeon_slag: str, Player_list: list):
     files = os.listdir(mydir)
@@ -132,11 +134,54 @@ def plot_ilvl_progression(mydir: os.path, tier_lvl: str, Player_list: list):
     plt.legend()
     plt.show()
 
+def plot_idk(player_name) -> None:
+    colors = ["b","g","r","c","m","y","k","w"]
+    
+    grapths = ['p999', 'p990', 'p900', 'p750', 'p600']
+    labels = ['Top 0.1%', 'Top 1%', 'Top 10%', 'Top 25%', 'Top 40%']
+    data = requests.get('https://raider.io/api/v1/mythic-plus/season-cutoffs?season=season-df-1&region=eu')
+    # for i in data.json()['cutoffs']['graphData']['p999']['data']:
+    #     print(i['x'])
+    
+    for j,x in enumerate(grapths):
+        # x_vals = [i['x'] for i in data.json()['cutoffs']['graphData'][x]['data']]
+        y_vals = [i['y'] for i in data.json()['cutoffs']['graphData'][x]['data']]
+        x_vals_date = [datetime.fromtimestamp(i['x']/1000).strftime('%Y-%m-%d') for i in data.json()['cutoffs']['graphData'][x]['data']]
+        x_vals_date.sort()
+        y_vals.sort()
+        
+        plt.plot(x_vals_date, y_vals, colors[j], label=labels[j])
+    
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus')
+    files = os.listdir(path)
+    my_dates = []
+    my_scores = []
+    for i in files:
+        playerdb = json.load(open(os.path.join(path,i), "r"))
+        db_name = "Players"
+        if "Mains" in playerdb.keys():
+            db_name = "Mains"
+        
+        tmp = [playerdb[db_name][y]['mythic_plus_scores_by_season'][0]['scores']['all'] for y, x in enumerate(playerdb[db_name]) if x['name'] == player_name]
+        if len(tmp) > 0:
+            my_scores.append(tmp[0])
+            my_dates.append(i[:10])
+        
+    plt.plot(my_dates, my_scores, 'k', label='Demage Score')
+    
+    plt.ylabel("Rio Score")
+    plt.xticks(rotation=90)
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+    
+    
 def main():
+    plot_idk('Thymár')    
     # players = ["Thymár","Nodoká","Demage","Sup","Käseknacker", "Shalltear", 'Liamos']
-    players = ["Demage", "Shalltear"]
+    # players = ["Demage", "Shalltear"]
     # plot_ilvl_progression(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus'), '29', players)
-    plot_best_dungeon(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus'), 'COS' ,players)
+    # plot_best_dungeon(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mplus'), 'COS' ,players)
 
 if __name__ == "__main__":
     main()
